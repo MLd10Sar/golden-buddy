@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { AppState, Session, Invite, View, AreaId, Interest, InviteStatus } from '../types';
-import { STORAGE_KEY, INVITE_DURATION_MS } from '../constants';
+import { STORAGE_KEY, INVITE_DURATION_MS, MOCK_PEERS } from '../constants';
 
 const initialState: AppState = {
   currentSession: null,
@@ -57,10 +57,8 @@ export function useGoldenBuddyStore() {
         const merged: AppState = { ...initialState, ...parsed } as AppState;
 
         // If a previous debug view was saved, don't auto-open it on load.
-        // Prefer dashboard if session exists, otherwise show welcome.
-        if ((merged as any).currentView === 'DIAGNOSTICS') {
-          merged.currentView = merged.currentSession ? 'DASHBOARD' : 'WELCOME';
-        }
+        // Always reset to WELCOME on fresh app load - user must go through onboarding
+        merged.currentView = 'WELCOME';
 
         // Only keep invites relevant to the current session and not expired
         if (!merged.currentSession) {
@@ -239,7 +237,6 @@ export function useGoldenBuddyStore() {
   const sendInvite = useCallback(async (toId: string, activity: Interest) => {
     if (!state.currentSession) return;
     
-    // Prevent duplicate sending locally
     const isAlreadySent = state.invites.some(i => i.toSessionId === toId && i.fromSessionId === state.currentSession?.id && i.status === 'PENDING');
     if (isAlreadySent) return;
 
@@ -255,32 +252,26 @@ export function useGoldenBuddyStore() {
 
     setState(prev => ({ ...prev, invites: [...prev.invites, newInvite] }));
 
+    // DEMO FEATURE: Simulate a response from mock buddies (IDs starting with peer_)
+    if (toId.startsWith('peer_')) {
+      const inviteId = newInvite.id;
+      const delay = 5000 + Math.random() * 7000; // 5 to 12 second delay
+      setTimeout(() => {
+        const action = Math.random() > 0.2 ? 'ACCEPTED' : 'DECLINED';
+        setState(prev => ({
+          ...prev,
+          invites: prev.invites.map(inv => inv.id === inviteId ? { ...inv, status: action, respondedAt: Date.now() } : inv)
+        }));
+      }, delay);
+      return;
+    }
+
     try {
       const inboxRes = await fetchWithTimeout(`${RELAY_BASE}/GetValue/${APP_TOKEN}/i_${toId}`);
       const inboxRaw = await inboxRes.text();
       let inbox = safeParseArray<InviteTransport>(inboxRaw);
-      // Keep recipient inbox very small to avoid long URLs
       inbox = [...inbox, toTransportInvite(newInvite)].slice(-2);
       await fetchWithTimeout(`${RELAY_BASE}/UpdateValue/${APP_TOKEN}/i_${toId}/${encodeURIComponent(JSON.stringify(inbox))}`, { method: 'POST' });
-      // remote inbox updated
-      // If we're sending to a mock peer (demo), simulate a response after a short delay
-      try {
-        if (toId.startsWith('peer_')) {
-          const delay = Math.floor(Math.random() * 5000) + 3000; // 3-8s
-          const willAccept = Math.random() < 0.8; // ~80% chance to accept
-          setTimeout(async () => {
-            // Update local state so UI reflects the simulated response immediately
-            setState(prev => ({
-              ...prev,
-              invites: prev.invites.map(i => i.id === newInvite.id ? { ...i, status: willAccept ? 'ACCEPTED' : 'DECLINED', respondedAt: Date.now() } : i)
-            }));
-            // Also write back to relay so other peers would see the response
-            try {
-              await fetchWithTimeout(`${RELAY_BASE}/UpdateValue/${APP_TOKEN}/v_${newInvite.id}/${willAccept ? 'ACCEPTED' : 'DECLINED'}`, { method: 'POST' });
-            } catch (e) { /* ignore relay write errors for simulation */ }
-          }, delay);
-        }
-      } catch (e) { /* ignore simulation errors */ }
     } catch (e) { 
       console.warn("Remote invite send failed, local state only.", e);
     }
@@ -304,11 +295,21 @@ export function useGoldenBuddyStore() {
     } catch (e) { /* Local state persists */ }
   }, [state.currentSession]);
 
+  const updateSessionName = useCallback((newName: string) => {
+    setState(prev => {
+      if (!prev.currentSession) return prev;
+      return {
+        ...prev,
+        currentSession: { ...prev.currentSession, displayName: newName }
+      };
+    });
+  }, []);
+
   const resetApp = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     setState(initialState);
     setRemotePeers([]);
   }, []);
 
-  return { state, remotePeers, setView, createSession, sendInvite, respondToInvite, resetApp };
+  return { state, remotePeers, setView, createSession, sendInvite, respondToInvite, updateSessionName, resetApp };
 }
