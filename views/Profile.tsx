@@ -4,12 +4,13 @@ import { AREAS } from '../constants';
 
 interface ProfileViewProps {
   session: Session;
+  onUpdateName: (name: string) => void;
   onBack: () => void;
   onEditInterests: () => void;
   onReset: () => void;
 }
 
-export const ProfileView: React.FC<ProfileViewProps> = ({ session, onBack, onEditInterests, onReset }) => {
+export const ProfileView: React.FC<ProfileViewProps> = ({ session, onUpdateName, onBack, onEditInterests, onReset }) => {
   const areaName = AREAS.find(a => a.id === session.areaId)?.name || session.areaId;
 
   return (
@@ -27,13 +28,24 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ session, onBack, onEdi
 
         <div className="space-y-6 text-left border-t border-slate-50 pt-6">
           <div>
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Your Name</label>
-            <p className="text-xl font-bold text-slate-800">{session.displayName}</p>
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 flex justify-between items-center">
+              Your Name
+              <span className="text-amber-500 text-[9px]">Tap to change</span>
+            </label>
+            <input
+              type="text"
+              value={session.displayName}
+              onChange={(e) => onUpdateName(e.target.value)}
+              className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xl font-bold text-slate-800 focus:border-amber-400 focus:bg-white outline-none transition-all"
+              placeholder="Your Name"
+            />
           </div>
 
           <div>
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Your Area</label>
-            <p className="text-lg font-semibold text-slate-700">{areaName}</p>
+            <p className="text-lg font-semibold text-slate-700 bg-slate-50 px-4 py-3 rounded-xl border-2 border-transparent">
+              {areaName}
+            </p>
           </div>
 
           <div>
