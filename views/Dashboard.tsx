@@ -92,10 +92,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ session, invites, remotePe
     if (!activeInvite) return;
     const currentNote = activeInvite.coordinationNote || '';
     let newNote = '';
+    const headingText = '🚶 Heading over now!';
     if (isHeadingOver) {
-      newNote = currentNote.replace('🚶 Heading over now!', '').trim();
+      newNote = currentNote.replace(headingText, '').trim();
     } else {
-      newNote = (currentNote ? currentNote + '. ' : '') + '🚶 Heading over now!';
+      newNote = (currentNote ? currentNote + '. ' : '') + headingText;
     }
     handleUpdateNote(newNote);
   };
@@ -154,7 +155,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ session, invites, remotePe
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-green-500/90 backdrop-blur-md animate-fadeIn">
           <div className="text-center text-white animate-scaleUp">
              <div className="text-9xl mb-6">✅</div>
-             <h2 className="text-5xl font-black mb-2">LOCKED IN!</h2>
+             <h2 className="text-5xl font-black mb-2 tracking-tight">LOCKED IN!</h2>
              <p className="text-xl font-bold opacity-90">Neighbors walking together.</p>
           </div>
         </div>
@@ -195,7 +196,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ session, invites, remotePe
               {MEETING_SPOTS.slice(0, 2).map(spot => (
                 <div key={spot.name} className="bg-white/10 p-4 rounded-2xl flex items-center gap-3 border border-white/10">
                   <span className="text-2xl">{spot.icon}</span>
-                  <span className="text-[10px] font-bold leading-tight">{spot.name}</span>
+                  <span className="text-[10px] font-bold leading-tight uppercase tracking-tight">{spot.name}</span>
                 </div>
               ))}
             </div>
@@ -265,10 +266,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ session, invites, remotePe
         <div className="fixed inset-0 bg-slate-900/95 backdrop-blur-xl z-[200] flex items-center justify-center p-6 animate-fadeIn">
           <div className="bg-white rounded-[3.5rem] p-10 w-full max-w-sm shadow-2xl text-center border-t-8 border-amber-500 overflow-y-auto max-h-[90vh]">
              <div className="text-7xl mb-6">🤝</div>
-             <h3 className="text-3xl font-black text-slate-900 mb-2">Walk Invite!</h3>
+             <h3 className="text-3xl font-black text-slate-900 mb-2 tracking-tight leading-none">Walk Invite!</h3>
              <p className="text-slate-600 mb-10 text-xl leading-snug">
                <span className="font-black text-slate-900">{allPeers.find(p => p.id === incomingInvites[0].fromSessionId)?.displayName}</span> 
-               <br/>asks to go for a <span className="text-amber-600 font-black uppercase">{incomingInvites[0].activity}</span>.
+               <br/>asks to go for a <span className="text-amber-600 font-black uppercase tracking-tight">{incomingInvites[0].activity}</span>.
              </p>
              
              <div className="mb-10 text-left space-y-4">
@@ -281,7 +282,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ session, invites, remotePe
              </div>
 
              <div className="flex flex-col gap-4">
-               <button onClick={() => { onRespond(incomingInvites[0].id, 'ACCEPTED', acceptanceNote); setAcceptanceNote(''); }} className="w-full py-6 bg-green-500 text-white font-black rounded-[2.5rem] text-2xl shadow-xl active:scale-95 transition-transform">Accept & Walk</button>
+               <button onClick={() => { onRespond(incomingInvites[0].id, 'ACCEPTED', acceptanceNote); setAcceptanceNote(''); }} className="w-full py-6 bg-green-500 text-white font-black rounded-[2.5rem] text-2xl shadow-xl active:scale-95 transition-transform border-b-4 border-green-700">Accept & Walk</button>
                <button onClick={() => { onRespond(incomingInvites[0].id, 'DECLINED'); setAcceptanceNote(''); }} className="w-full py-4 text-slate-400 font-bold rounded-2xl text-lg">Not right now</button>
              </div>
           </div>
@@ -291,18 +292,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ session, invites, remotePe
       {/* EDIT MODAL */}
       {isEditingMeetingNote && activeInvite && (
         <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-lg z-[210] flex items-center justify-center p-6 animate-fadeIn">
-          <div className="bg-white rounded-[3rem] p-8 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-3xl font-black text-slate-900 mb-6">Note 📝</h3>
+          <div className="bg-white rounded-[3rem] p-8 w-full max-w-sm shadow-2xl max-h-[90vh] overflow-y-auto border-t-8 border-green-500">
+            <h3 className="text-3xl font-black text-slate-900 mb-6 tracking-tight leading-none">Update Note 📝</h3>
             <div className="mb-8 space-y-8">
               <textarea rows={3} value={tempNote} onChange={(e) => setTempNote(e.target.value)} placeholder="Help your buddy find you..." className="w-full bg-slate-50 border-2 border-slate-200 rounded-[2rem] px-6 py-5 font-black text-slate-800 focus:border-green-500 outline-none resize-none text-xl" />
               <div className="grid grid-cols-2 gap-3">
                 {QUICK_RECOGNIZERS.map(r => (
-                  <button key={r.label} onClick={() => setTempNote(prev => prev ? `${prev}. ${r.value}` : r.value)} className="bg-slate-100 text-slate-700 text-[10px] font-black p-4 rounded-2xl uppercase border-2 border-transparent hover:border-amber-400">{r.label}</button>
+                  <button key={r.label} onClick={() => setTempNote(prev => prev ? `${prev}. ${r.value}` : r.value)} className="bg-slate-100 text-slate-700 text-[10px] font-black p-4 rounded-2xl uppercase border-2 border-transparent hover:border-amber-400 transition-colors">
+                    {r.label}
+                  </button>
                 ))}
               </div>
             </div>
             <div className="flex flex-col gap-4">
-              <button onClick={() => { handleUpdateNote(tempNote); setIsEditingMeetingNote(false); }} className="w-full py-5 bg-green-500 text-white font-black rounded-[2rem] text-xl shadow-lg active:scale-95">Save Update</button>
+              <button onClick={() => { handleUpdateNote(tempNote); setIsEditingMeetingNote(false); }} className="w-full py-5 bg-green-500 text-white font-black rounded-[2rem] text-xl shadow-lg active:scale-95 border-b-4 border-green-700">Save Update</button>
               <button onClick={() => setIsEditingMeetingNote(false)} className="w-full py-4 text-slate-400 font-bold rounded-2xl">Cancel</button>
             </div>
           </div>
