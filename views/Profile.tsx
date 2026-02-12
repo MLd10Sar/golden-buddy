@@ -1,17 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Session } from '../types';
 import { AREAS } from '../constants';
 
 interface ProfileViewProps {
   session: Session;
-  onUpdateName: (name: string) => void;
   onBack: () => void;
   onEditInterests: () => void;
+  onUpdateName: (newName: string) => void;
   onReset: () => void;
 }
 
-export const ProfileView: React.FC<ProfileViewProps> = ({ session, onUpdateName, onBack, onEditInterests, onReset }) => {
+export const ProfileView: React.FC<ProfileViewProps> = ({ session, onBack, onEditInterests, onUpdateName, onReset }) => {
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editName, setEditName] = useState(session.displayName);
   const areaName = AREAS.find(a => a.id === session.areaId)?.name || session.areaId;
+
+  const handleSaveName = () => {
+    const trimmed = editName.trim();
+    if (trimmed && trimmed !== session.displayName) {
+      onUpdateName(trimmed);
+    }
+    setEditName(session.displayName);
+    setIsEditingName(false);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSaveName();
+    } else if (e.key === 'Escape') {
+      setEditName(session.displayName);
+      setIsEditingName(false);
+    }
+  };
 
   return (
     <div className="p-6 animate-fadeIn">
@@ -28,24 +48,40 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ session, onUpdateName,
 
         <div className="space-y-6 text-left border-t border-slate-50 pt-6">
           <div>
-            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 flex justify-between items-center">
-              Your Name
-              <span className="text-amber-500 text-[9px]">Tap to change</span>
-            </label>
-            <input
-              type="text"
-              value={session.displayName}
-              onChange={(e) => onUpdateName(e.target.value)}
-              className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-xl font-bold text-slate-800 focus:border-amber-400 focus:bg-white outline-none transition-all"
-              placeholder="Your Name"
-            />
+            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Your Name</label>
+            {isEditingName ? (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  onBlur={handleSaveName}
+                  autoFocus
+                  maxLength={30}
+                  className="flex-1 px-4 py-3 border-2 border-amber-400 bg-amber-50 rounded-xl font-bold text-slate-800 focus:outline-none"
+                />
+                <button
+                  onClick={handleSaveName}
+                  className="px-4 py-3 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600"
+                >
+                  ✓
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsEditingName(true)}
+                className="flex items-center gap-2 group p-3 rounded-xl hover:bg-amber-50 transition-colors"
+              >
+                <p className="text-xl font-bold text-slate-800">{session.displayName}</p>
+                <span className="text-slate-400 group-hover:text-slate-600 transition-colors">✏️</span>
+              </button>
+            )}
           </div>
 
           <div>
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Your Area</label>
-            <p className="text-lg font-semibold text-slate-700 bg-slate-50 px-4 py-3 rounded-xl border-2 border-transparent">
-              {areaName}
-            </p>
+            <p className="text-lg font-semibold text-slate-700">{areaName}</p>
           </div>
 
           <div>
