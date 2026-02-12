@@ -46,4 +46,16 @@ export const MOCK_PEERS = [
   { id: 'peer_22', displayName: 'Frank', areaId: 'exploring', interests: ['Bird Watching', 'Walking'], distance: '10 min walk', buddySince: 'Aug 2022', lastSeen: '4 hours ago' },
   { id: 'peer_23', displayName: 'Betty', areaId: 'richmond_va', interests: ['Walking', 'Chess'], distance: '7 min walk', buddySince: 'Feb 2023', lastSeen: 'Just now' },
   { id: 'peer_24', displayName: 'Edward', areaId: 'alexandria_va', interests: ['Gardening', 'Chess'], distance: '20 min walk', buddySince: 'Dec 2022', lastSeen: 'Active today' },
+  // New expanded profiles
+  { id: 'peer_25', displayName: 'Rosie', areaId: 'arlington_va', interests: ['Coffee & Chat', 'Bird Watching'], distance: '6 min walk', buddySince: 'Nov 2023', lastSeen: 'Active today' },
+  { id: 'peer_26', displayName: 'James', areaId: 'alexandria_va', interests: ['Walking', 'Gardening'], distance: '12 min walk', buddySince: 'Jul 2023', lastSeen: 'Active recently' },
+  { id: 'peer_27', displayName: 'Caroline', areaId: 'richmond_va', interests: ['Bird Watching', 'Coffee & Chat'], distance: '8 min walk', buddySince: 'Oct 2023', lastSeen: '1 hour ago' },
+  { id: 'peer_28', displayName: 'Victor', areaId: 'exploring', interests: ['Chess', 'Walking'], distance: '14 min walk', buddySince: 'Dec 2023', lastSeen: 'Active today' },
+  { id: 'peer_29', displayName: 'Ruth', areaId: 'arlington_va', interests: ['Gardening', 'Bird Watching'], distance: '9 min walk', buddySince: 'Feb 2024', lastSeen: 'Active recently' },
+  { id: 'peer_30', displayName: 'Lawrence', areaId: 'alexandria_va', interests: ['Chess', 'Gardening'], distance: '18 min walk', buddySince: 'Jun 2023', lastSeen: '3 hours ago' },
+  { id: 'peer_31', displayName: 'Diane', areaId: 'richmond_va', interests: ['Walking', 'Bird Watching'], distance: '11 min walk', buddySince: 'Sep 2023', lastSeen: 'Just now' },
+  { id: 'peer_32', displayName: 'Paul', areaId: 'arlington_va', interests: ['Coffee & Chat', 'Chess'], distance: '16 min walk', buddySince: 'Aug 2023', lastSeen: '2 days ago' },
+  { id: 'peer_33', displayName: 'Judith', areaId: 'exploring', interests: ['Walking', 'Coffee & Chat'], distance: '7 min walk', buddySince: 'Jan 2024', lastSeen: 'Active today' },
+  { id: 'peer_34', displayName: 'Mark', areaId: 'alexandria_va', interests: ['Bird Watching', 'Gardening'], distance: '19 min walk', buddySince: 'Mar 2023', lastSeen: 'Active recently' },
 ];
+
