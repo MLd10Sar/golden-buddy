@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGoldenBuddyStore } from './services/store';
 import { WelcomeView } from './views/Welcome';
+import { NamePicker } from './views/NamePicker';
 import { LocationPicker } from './views/LocationPicker';
 import { InterestPicker } from './views/InterestPicker';
 import { Dashboard } from './views/Dashboard';
@@ -8,23 +9,33 @@ import { ProfileView } from './views/Profile';
 import { AreaId, Interest } from './types';
 
 const App: React.FC = () => {
-  const { state, remotePeers, setView, createSession, sendInvite, respondToInvite, resetApp } = useGoldenBuddyStore();
+  const { state, remotePeers, setView, createSession, updateSessionName, sendInvite, respondToInvite, resetApp } = useGoldenBuddyStore();
   
   // Local temporary state for onboarding flow
-  const [tempName, setTempName] = useState('Buddy');
+  const [tempName, setTempName] = useState('');
   const [tempArea, setTempArea] = useState<AreaId | null>(null);
   const [tempInterests, setTempInterests] = useState<Interest[]>([]);
 
   const handleFinishOnboarding = () => {
     if (tempArea) {
-      createSession(tempName, tempArea, tempInterests);
+      createSession(tempName || 'Buddy', tempArea, tempInterests);
     }
   };
 
   const renderView = () => {
     switch (state.currentView) {
       case 'WELCOME':
-        return <WelcomeView onNext={() => setView('LOCATION')} />;
+        return <WelcomeView onNext={() => setView('NAME')} />;
+      
+      case 'NAME':
+        return (
+          <NamePicker
+            name={tempName}
+            onSetName={setTempName}
+            onNext={() => setView('LOCATION')}
+            onBack={() => setView('WELCOME')}
+          />
+        );
       
       case 'LOCATION':
         return (
@@ -34,7 +45,7 @@ const App: React.FC = () => {
               setTempArea(area);
               setView('INTERESTS');
             }}
-            onBack={() => setView('WELCOME')}
+            onBack={() => setView('NAME')}
           />
         );
       
@@ -66,12 +77,11 @@ const App: React.FC = () => {
           />
         );
 
-      
-
       case 'PROFILE':
         return (
           <ProfileView 
             session={state.currentSession!}
+            onUpdateName={updateSessionName}
             onBack={() => setView('DASHBOARD')}
             onEditInterests={() => setView('INTERESTS')}
             onReset={resetApp}
@@ -79,7 +89,7 @@ const App: React.FC = () => {
         );
       
       default:
-        return <WelcomeView onNext={() => setView('LOCATION')} />;
+        return <WelcomeView onNext={() => setView('NAME')} />;
     }
   };
 
