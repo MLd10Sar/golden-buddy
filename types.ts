@@ -28,9 +28,10 @@ export interface Invite {
   createdAt: number;
   expiresAt: number;
   respondedAt?: number;
+  coordinationNote?: string;
 }
 
-export type View = 'WELCOME' | 'LOCATION' | 'INTERESTS' | 'DASHBOARD' | 'PROFILE';
+export type View = 'WELCOME' | 'NAME' | 'LOCATION' | 'INTERESTS' | 'DASHBOARD' | 'PROFILE';
 
 export interface AppState {
   currentSession: Session | null;
