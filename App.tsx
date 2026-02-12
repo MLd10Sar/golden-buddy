@@ -66,6 +66,8 @@ const App: React.FC = () => {
           />
         );
 
+      
+
       case 'PROFILE':
         return (
           <ProfileView 

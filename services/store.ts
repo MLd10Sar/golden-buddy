@@ -53,8 +53,27 @@ export function useGoldenBuddyStore() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
-        return { ...initialState, ...parsed };
+        const parsed = JSON.parse(saved) as Partial<AppState>;
+        const merged: AppState = { ...initialState, ...parsed } as AppState;
+
+        // If a previous debug view was saved, don't auto-open it on load.
+        // Prefer dashboard if session exists, otherwise show welcome.
+        if ((merged as any).currentView === 'DIAGNOSTICS') {
+          merged.currentView = merged.currentSession ? 'DASHBOARD' : 'WELCOME';
+        }
+
+        // Only keep invites relevant to the current session and not expired
+        if (!merged.currentSession) {
+          merged.invites = [];
+        } else {
+          const now = Date.now();
+          merged.invites = (merged.invites || []).filter(i => (
+            (i.fromSessionId === merged.currentSession!.id || i.toSessionId === merged.currentSession!.id)
+            && i.expiresAt > now
+          ));
+        }
+
+        return merged;
       } catch (e) {
         return initialState;
       }
@@ -244,6 +263,24 @@ export function useGoldenBuddyStore() {
       inbox = [...inbox, toTransportInvite(newInvite)].slice(-2);
       await fetchWithTimeout(`${RELAY_BASE}/UpdateValue/${APP_TOKEN}/i_${toId}/${encodeURIComponent(JSON.stringify(inbox))}`, { method: 'POST' });
       // remote inbox updated
+      // If we're sending to a mock peer (demo), simulate a response after a short delay
+      try {
+        if (toId.startsWith('peer_')) {
+          const delay = Math.floor(Math.random() * 5000) + 3000; // 3-8s
+          const willAccept = Math.random() < 0.8; // ~80% chance to accept
+          setTimeout(async () => {
+            // Update local state so UI reflects the simulated response immediately
+            setState(prev => ({
+              ...prev,
+              invites: prev.invites.map(i => i.id === newInvite.id ? { ...i, status: willAccept ? 'ACCEPTED' : 'DECLINED', respondedAt: Date.now() } : i)
+            }));
+            // Also write back to relay so other peers would see the response
+            try {
+              await fetchWithTimeout(`${RELAY_BASE}/UpdateValue/${APP_TOKEN}/v_${newInvite.id}/${willAccept ? 'ACCEPTED' : 'DECLINED'}`, { method: 'POST' });
+            } catch (e) { /* ignore relay write errors for simulation */ }
+          }, delay);
+        }
+      } catch (e) { /* ignore simulation errors */ }
     } catch (e) { 
       console.warn("Remote invite send failed, local state only.", e);
     }
