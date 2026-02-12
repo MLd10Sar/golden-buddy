@@ -243,6 +243,7 @@ export function useGoldenBuddyStore() {
       // Keep recipient inbox very small to avoid long URLs
       inbox = [...inbox, toTransportInvite(newInvite)].slice(-2);
       await fetchWithTimeout(`${RELAY_BASE}/UpdateValue/${APP_TOKEN}/i_${toId}/${encodeURIComponent(JSON.stringify(inbox))}`, { method: 'POST' });
+      // remote inbox updated
     } catch (e) { 
       console.warn("Remote invite send failed, local state only.", e);
     }
