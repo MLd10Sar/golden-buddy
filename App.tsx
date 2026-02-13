@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { AppStep, UserPreferences, Invite, InviteState, Buddy } from './types';
 import { AREAS, INTERESTS, INVITE_EXPIRY_MS } from './constants';
