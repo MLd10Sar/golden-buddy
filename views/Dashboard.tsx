@@ -64,7 +64,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ session, invites, remotePe
       id: p.id, displayName: p.displayName, areaId: p.areaId, interests: p.interests,
       distance: 'Live Nearby', isReal: true
     }));
-    const combined = [...realPeers, ...MOCK_PEERS.map(p => ({ ...p, isReal: false }))];
+    const combined = realPeers;
 
     return combined.map(peer => {
       let score = 0;
