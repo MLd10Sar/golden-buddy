@@ -157,7 +157,7 @@ export function useGoldenBuddyStore() {
           } catch(e) { return null; }
         });
       
-      const peers = (await Promise.all(peerPromises)).filter(p => p && (Date.now() - p.lastSeenAt < 300000)) as Session[];
+      const peers = (await Promise.all(peerPromises)).filter(p => p && (Date.now() - p.lastSeenAt < 120000) as Session[];
       setRemotePeers(peers);
 
       const invRes = await fetchWithTimeout(`${RELAY_BASE}/GetValue/${APP_TOKEN}/i_${state.currentSession.id}`);
@@ -197,8 +197,8 @@ export function useGoldenBuddyStore() {
   useEffect(() => {
     if (!state.currentSession) return;
     broadcastPresence();
-    const pInt = setInterval(broadcastPresence, 30000); 
-    const sInt = setInterval(syncRemoteData, 8000); 
+    const pInt = setInterval(broadcastPresence, 10000);
+    const sInt = setInterval(syncRemoteData, 3000);
     return () => { clearInterval(pInt); clearInterval(sInt); };
   }, [state.currentSession, broadcastPresence, syncRemoteData]);
 
